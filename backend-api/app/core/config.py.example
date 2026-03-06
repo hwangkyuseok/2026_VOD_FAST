@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     db_port: int = 5432
     db_name: str = "YOUR_DB_NAME"
     db_user: str = "YOUR_DB_USER"
-    db_password: str = ""
+    db_password: str = "YOUR_DB_PASSWORD"
 
     # ── Redis ──────────────────────────────────────────────────
     redis_url: str = "redis://redis:6379/0"
