@@ -1,0 +1,22 @@
+apscheduler==3.10.4
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+redis==5.2.1
+structlog==24.4.0
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# 비전 분석
+scenedetect[opencv]==0.6.4
+ultralytics==8.3.40
+ffmpeg-python==0.2.0
+Pillow==11.0.0
+
+# CLIP (컨텍스트 태그 추출 — 2026_ADWARE 패턴 반영)
+# CLIP_ENABLED=false 환경변수로 비활성화 가능 (CPU 전용 환경)
+transformers==4.47.1
+torch==2.5.1
+
+# 생성형 AI
+openai==1.58.1
+

@@ -1,0 +1,356 @@
+-- 1. 고객 약정서비스 현황 및 서비스 이용내역
+CREATE TABLE TB_CUST_INFO (
+    SHA2_HASH VARCHAR(64), -- 고객ID(암호화)
+	USER_ID VARCHAR(20), -- 고객ID
+    SVC_USE_DAYS_GRP VARCHAR(50),      -- 가입 후 현재까지의 유지 기간 구간
+    MEDIA_NM_GRP VARCHAR(20),          -- 가입 상품의 기술적 화질 수준
+    PROD_NM_GRP VARCHAR(50),           -- 요금제 수준
+    PROD_OLD_YN CHAR(1),               -- 노후 셋톱박스 사용 여부
+    PROD_ONE_PLUS_YN CHAR(1),          -- 추가 단말(1+1) 프로모션 이용 여부
+    AGMT_KIND_NM VARCHAR(50),          -- 신규/재약정 등 계약의 성격
+    STB_RES_1M_YN CHAR(1),             -- 1개월 내 셋톱 오류/재부팅 경험
+    SVOD_SCRB_CNT_GRP VARCHAR(20),     -- 유료 VOD 월정액 상품 가입 수
+    PAID_CHNL_CNT_GRP VARCHAR(20),     -- 유료 채널 가입 수
+    SCRB_PATH_NM_GRP VARCHAR(50),      -- 고객 유입 채널
+    INHOME_RATE VARCHAR(20),           -- 고객이 집에 머무르는 비중 스코어 (문자 혼재)
+    AGMT_END_SEG VARCHAR(50),          -- 만료까지 남은 기간 구간
+    AGMT_END_YMD VARCHAR(8),           -- 계약 종료 예정일 (YYYYMMDD)
+    TOTAL_USED_DAYS INTEGER,           -- 가입일부터 현재까지 총 경과일 (DAY)
+    TV_SCRB NUMERIC,                   -- 보유 TV 상품 회선 수
+    ANALOG_SCRB NUMERIC,               -- 아날로그 방송 상품 가입 수
+    DIGITAL_SCRB NUMERIC,              -- 디지털 방송 상품 가입 수
+    TOTAL_INTERNET_SCRB NUMERIC,       -- 보유 인터넷 상품 회선 수
+    GIGA_INTERNET_SCRB NUMERIC,        -- 기가급 인터넷 보유 수
+    BUNDLE_YN CHAR(1),                 -- 방송+인터넷 결합 여부
+    DIGITAL_GIGA_YN CHAR(1),           -- 디지털방송 + 기가인터넷 결합 여부
+    DIGITAL_ALOG_YN CHAR(1),           -- 디지털 + 아날로그 동시 이용 여부
+    TV_I_CNT NUMERIC,                  -- TV와 인터넷을 묶은 총 회선 수
+    CH_LAST_DAYS_BF_GRP VARCHAR(50),   -- 최근 시청일로부터 경과한 기간 구간
+    VOC_TOTAL_MONTH1_YN CHAR(1),       -- 최근 1개월 내 상담 이력 유무
+    VOC_STOP_CANCEL_MONTH1_YN CHAR(1), -- 해지 문의 후 방어(유지)된 이력
+    AGE_GRP10 VARCHAR(20),             -- 고객 연령대 그룹
+    EMAIL_RECV_CLS_NM VARCHAR(20),     -- 마케팅 이메일 수신 동의 여부
+    SMS_SEND_CLS_NM VARCHAR(20),       -- 마케팅 문자 수신 동의 여부
+    CH_HH_AVG_MONTH1 NUMERIC,          -- 월 평균 시청 시간
+    CH_25_RATIO_MONTH1 NUMERIC,        -- 지역채널 시청 비중 (당월)
+    CH_25_RATIO_MEAN_3MM NUMERIC,      -- 지역채널 시청 비중 (3개월 평균)
+    CH_FAV_RNK1 VARCHAR(100),          -- 가장 많이 시청한 채널명
+    KIDS_USE_PV_MONTH1 NUMERIC,        -- 키즈 메뉴/콘텐츠 조회수
+    NFX_USE_YN CHAR(1),                -- 셋톱박스로 넷플릭스 앱 이용 여부
+    YTB_USE_YN CHAR(1),                -- 셋톱박스로 유튜브 앱 이용 여부
+    P_MT VARCHAR(6),                   -- 데이터 생성 월 (YYYYMM)
+    CONSTRAINT TB_CUST_INFO_PK PRIMARY KEY (SHA2_HASH, USER_ID, P_MT)
+);
+
+COMMENT ON TABLE TB_CUST_INFO IS '고객 약정서비스 현황 및 서비스 이용내역';
+COMMENT ON COLUMN TB_CUST_INFO.SHA2_HASH IS '고객ID(암호화)';
+COMMENT ON COLUMN TB_CUST_INFO.USER_ID IS '고객ID';
+COMMENT ON COLUMN TB_CUST_INFO.SVC_USE_DAYS_GRP IS '서비스 이용기간(가입 후 현재까지의 유지기간 구간)';
+COMMENT ON COLUMN TB_CUST_INFO.MEDIA_NM_GRP IS '상품 매체명(가입 상품의 기술적 화질 수준 (HD < UHD))';
+COMMENT ON COLUMN TB_CUST_INFO.PROD_NM_GRP IS '상품명(요금제 수준)';
+COMMENT ON COLUMN TB_CUST_INFO.PROD_OLD_YN IS '구)상품 이용 유무';
+COMMENT ON COLUMN TB_CUST_INFO.PROD_ONE_PLUS_YN IS '추가 단말(1+1) 이용 여부';
+COMMENT ON COLUMN TB_CUST_INFO.AGMT_KIND_NM IS '약정 종류(신규/재약정 등 계약의 성격)';
+COMMENT ON COLUMN TB_CUST_INFO.STB_RES_1M_YN IS '셋탑박스 휴면 유무';
+COMMENT ON COLUMN TB_CUST_INFO.SVOD_SCRB_CNT_GRP IS '유료 VOD 월정액 상품 가입 수';
+COMMENT ON COLUMN TB_CUST_INFO.PAID_CHNL_CNT_GRP IS '유료 채널(캐치온 등) 가입 수';
+COMMENT ON COLUMN TB_CUST_INFO.SCRB_PATH_NM_GRP IS '고객 유입 채널';
+COMMENT ON COLUMN TB_CUST_INFO.INHOME_RATE IS '집돌이 지수';
+COMMENT ON COLUMN TB_CUST_INFO.AGMT_END_SEG IS '만료까지 남은 기간 구간';
+COMMENT ON COLUMN TB_CUST_INFO.AGMT_END_YMD IS '가입일부터 현재까지 총 경과일 (DAY)';
+COMMENT ON COLUMN TB_CUST_INFO.TOTAL_USED_DAYS IS '가입일부터 현재까지 총 경과일 (DAY)';
+COMMENT ON COLUMN TB_CUST_INFO.TV_SCRB IS '보유 TV 상품 회선 수';
+COMMENT ON COLUMN TB_CUST_INFO.ANALOG_SCRB IS '아날로그 방송 상품 가입 수';
+COMMENT ON COLUMN TB_CUST_INFO.DIGITAL_SCRB IS '디지털 방송 상품 가입 수';
+COMMENT ON COLUMN TB_CUST_INFO.TOTAL_INTERNET_SCRB IS '보유 인터넷 상품 회선 수';
+COMMENT ON COLUMN TB_CUST_INFO.GIGA_INTERNET_SCRB IS '기가급 인터넷 보유 수';
+COMMENT ON COLUMN TB_CUST_INFO.BUNDLE_YN IS '방송+인터넷 결합 여부';
+COMMENT ON COLUMN TB_CUST_INFO.DIGITAL_GIGA_YN IS '디지털방송 + 기가인터넷 결합 여부';
+COMMENT ON COLUMN TB_CUST_INFO.DIGITAL_ALOG_YN IS '디지털 + 아날로그 동시 이용 여부';
+COMMENT ON COLUMN TB_CUST_INFO.TV_I_CNT IS 'TV와 인터넷을 묶은 총 회선 수';
+COMMENT ON COLUMN TB_CUST_INFO.CH_LAST_DAYS_BF_GRP IS '최근 시청일로부터 경과한 기간 구간';
+COMMENT ON COLUMN TB_CUST_INFO.VOC_TOTAL_MONTH1_YN IS '최근 1개월 내 상담 이력 유무';
+COMMENT ON COLUMN TB_CUST_INFO.VOC_STOP_CANCEL_MONTH1_YN IS '해지 문의 후 방어(유지)된 이력';
+COMMENT ON COLUMN TB_CUST_INFO.AGE_GRP10 IS '고객 연령대 그룹';
+COMMENT ON COLUMN TB_CUST_INFO.EMAIL_RECV_CLS_NM IS '마케팅 이메일 수신 동의 여부';
+COMMENT ON COLUMN TB_CUST_INFO.SMS_SEND_CLS_NM IS '마케팅 문자 수신 동의 여부';
+COMMENT ON COLUMN TB_CUST_INFO.CH_HH_AVG_MONTH1 IS '월 평균 시청 시간';
+COMMENT ON COLUMN TB_CUST_INFO.CH_25_RATIO_MONTH1 IS '1개월 간 지역채널 시청률';
+COMMENT ON COLUMN TB_CUST_INFO.CH_25_RATIO_MEAN_3MM IS '3개월 간 지역채널 시청률';
+COMMENT ON COLUMN TB_CUST_INFO.CH_FAV_RNK1 IS '선호채널 랭크';
+COMMENT ON COLUMN TB_CUST_INFO.KIDS_USE_PV_MONTH1 IS '키즈 메뉴/콘텐츠 조회수';
+COMMENT ON COLUMN TB_CUST_INFO.NFX_USE_YN IS '셋톱박스로 넷플릭스 앱 이용 여부';
+COMMENT ON COLUMN TB_CUST_INFO.YTB_USE_YN IS '셋톱박스로 유튜브 앱 이용 여부';
+COMMENT ON COLUMN TB_CUST_INFO.P_MT IS '데이터 생성 월 (YYYYMM)';
+
+
+-- 2. 고객별 VOD 시청이력
+CREATE TABLE TB_VOD_LOG (
+	SRL_NO BIGSERIAL,
+    SHA2_HASH VARCHAR(64),             -- 고객ID_암호화
+	USER_ID VARCHAR(20), 
+    ASSET VARCHAR(255),                -- 콘텐츠 자산 ID
+    ASSET_NM VARCHAR(255),             -- 콘텐츠명
+    CT_CL VARCHAR(255),                 -- 콘텐츠 유형
+	GENRE_OF_CT_CL VARCHAR(255),   		-- 콘텐츠 장르
+    USE_TMS INTEGER,                   -- 실제 시청시간(초)
+    DISP_RTM VARCHAR(20),                  -- 콘텐츠 러닝타임
+    STRT_DT VARCHAR(14),               -- 시청 시작일시 (YYYYMMDDHHMISS)
+	CATEGORY VARCHAR(255),              -- 서비스 카테고리
+	P_MT VARCHAR(6),                   -- 데이터 생성 월 (YYYYMM)
+	CONSTRAINT TB_VOD_LOG_PK PRIMARY KEY (SRL_NO, P_MT)
+);
+
+COMMENT ON TABLE TB_VOD_LOG IS '고객별 VOD 시청이력';
+COMMENT ON COLUMN TB_VOD_LOG.SRL_NO IS '일련번호';
+COMMENT ON COLUMN TB_VOD_LOG.SHA2_HASH IS '고객ID(암호화)';
+COMMENT ON COLUMN TB_VOD_LOG.USER_ID IS '고객ID';
+COMMENT ON COLUMN TB_VOD_LOG.ASSET IS '콘텐츠 자산 ID';
+COMMENT ON COLUMN TB_VOD_LOG.ASSET_NM IS '콘텐츠명';
+COMMENT ON COLUMN TB_VOD_LOG.CT_CL IS '콘텐츠 유형';
+COMMENT ON COLUMN TB_VOD_LOG.GENRE_OF_CT_CL IS '콘텐츠 장르';
+COMMENT ON COLUMN TB_VOD_LOG.USE_TMS IS '실제 시청시간(초)';
+COMMENT ON COLUMN TB_VOD_LOG.DISP_RTM IS '콘텐츠 러닝타임(01:01 HH:MM)';
+COMMENT ON COLUMN TB_VOD_LOG.STRT_DT IS '시청 시작일시(YYYYMMDDHHMISS)';
+COMMENT ON COLUMN TB_VOD_LOG.CATEGORY IS '서비스 카테고리';
+COMMENT ON COLUMN TB_VOD_LOG.P_MT IS '데이터 생성 월 (YYYYMM)';
+
+
+-- 3. VOD 콘텐츠 상세 마스터
+CREATE TABLE TB_VOD_META (
+    ASSET_ID VARCHAR(100), -- 에셋ID
+    ACTR_DISP TEXT,                    -- 출연배우
+    ASSET_NM VARCHAR(255),             -- 콘텐츠명
+    ASSET_PROD VARCHAR(50),            -- 상품타입
+    AUD VARCHAR(50),                   -- 오디오
+    AUDIENCE_CNT INTEGER,              -- 관객수
+    BROAD_YMD VARCHAR(10),             -- 방영일자
+    CATEGORY VARCHAR(255),             -- 카테고리경로
+    CHAPTER VARCHAR(50),               -- 챕터정보
+    CREATED VARCHAR(14),               -- 생성일시
+    CREATED_BY VARCHAR(100),           -- 생성자
+    CRT_YMD VARCHAR(10),               -- 등록일자
+    CT_CL VARCHAR(100),                -- 콘텐츠대분류
+    CTS_ID VARCHAR(100),               -- CTS_ID
+    DESCRIPTION TEXT,                  -- 상세설명
+    DIRECTOR VARCHAR(255),             -- 감독
+    DISP_AS_LST_CHNC VARCHAR(10),      -- LASTCHANCE여부
+    DISP_AS_NEW VARCHAR(10),           -- NEW뱃지여부
+    DISP_RTM VARCHAR(20),              -- 상영시간
+    DSBTR_NM VARCHAR(100),             -- 배급사
+    EPSD_ID VARCHAR(100),              -- 에피소드ID
+    EPSD_NM VARCHAR(255),              -- 에피소드명
+    EPSD_NO INTEGER,                   -- 회차번호
+    FULL_ASSET_ID VARCHAR(100),        -- 전체에셋ID
+    GENRE VARCHAR(100),                -- 장르(대)
+    GENRE_OF_CT_CL VARCHAR(100),       -- 장르(소)
+    GENRE_OF_CT_CL_CD VARCHAR(50),     -- 장르코드
+    GRADE_SCORE VARCHAR(50),           -- 시청등급
+    HASH_TAG TEXT,                     -- 해시태그
+    IMG_BASE_DIR VARCHAR(255),         -- 이미지경로
+    IS_HOT_FL INTEGER,                 -- 인기작여부 (0/1)
+    IS_NEW_FL INTEGER,                 -- 신작여부 (0/1)
+    LONG_TAIL_FL INTEGER,              -- 롱테일여부 (0/1)
+    LT_INCLSN_FL INTEGER,              -- LT포함여부 (0/1)
+    MOBILE_WATCH_URL TEXT,             -- 모바일URL
+    ONE_LINE_REVIEW TEXT,              -- 한줄평
+    ORGNL_AIR_DT VARCHAR(20),          -- 방영일시
+    ORGNL_CNTRY VARCHAR(50),           -- 제작국가
+    POSTER_DEL_FL INTEGER,             -- 포스터삭제여부
+    POSTER_PT VARCHAR(255),            -- 포스터파일명
+    PRDCRS VARCHAR(255),               -- 제작자
+    PREVIEW_FILE_NM VARCHAR(255),      -- 예고편파일명
+    PREVIEW_RATE VARCHAR(50),          -- 예고편비율
+    PREVIEW_RTM VARCHAR(50),           -- 예고편시간
+    PREVW_PRD INTEGER,                 -- 미리보기시간
+    PRODUCT_TP VARCHAR(50),            -- 상품유형코드
+    PROVIDER VARCHAR(100),             -- 제공사
+    PRPGT_PRI INTEGER,                 -- 우선순위
+    PRVD_ID VARCHAR(100),              -- 제공사ID
+    PUBLCTN_RT VARCHAR(50),            -- 배급비율
+    RATE NUMERIC,                      -- 평점
+    RLSE_YEAR INTEGER,                 -- 출시년도
+    RVSN_ID INTEGER,                   -- 리비전ID
+    SCREEN_TP VARCHAR(50),             -- 화질타입
+    SEASN_FIN_FL VARCHAR(10),          -- 시즌완결여부
+    SEASN_PREM_FL VARCHAR(10),         -- 시즌프리미엄
+    SERIES_SQ INTEGER,                 -- 시리즈순서
+    SHOW_TP VARCHAR(50),               -- 방영타입
+    SMRY TEXT,                         -- 줄거리
+    SMRY_LNG TEXT,                     -- 줄거리(장)
+    SMRY_SHRT TEXT,                    -- 줄거리(단)
+    SP_ID VARCHAR(100),                -- SP_ID
+    STAR_SCORE VARCHAR(50),            -- 별점
+    STUDIO VARCHAR(255),               -- 스튜디오
+    STUDIO_CD VARCHAR(50),             -- 스튜디오코드
+    STUDIO_NM VARCHAR(255),            -- 제작사명
+    SUB_TITLE VARCHAR(255),            -- 부제
+    SUPER_ASSET_ID VARCHAR(100),       -- 상위에셋ID
+    SUPER_ASSET_NM VARCHAR(255),       -- 상위에셋명
+    SUPER_ASSET_SQ INTEGER,            -- 상위에셋순서
+    SVC_APPLIED VARCHAR(100),          -- 서비스적용
+    SVC_APY_FL INTEGER,                -- 서비스플래그
+    THMBNL_DEL_FL INTEGER,             -- 썸네일삭제여부
+    THMBNL_FL INTEGER,                 -- 썸네일여부
+    THMBNL_PT VARCHAR(255),            -- 썸네일경로
+    THMBNL_REP_FILE_NM VARCHAR(255),   -- 대표썸네일명
+    TTL VARCHAR(255),                  -- 제목
+    TTL_BRIEF VARCHAR(255),            -- 제목(약어)
+    TTL_LNG VARCHAR(255),              -- 제목(장)
+    TTL_MDM VARCHAR(255),              -- 제목(중)
+    TTL_SORT_NM VARCHAR(255),          -- 정렬용제목
+    UPDATED VARCHAR(14),               -- 수정일시
+    USE_FL INTEGER,                    -- 사용여부
+    VER_MAJOR INTEGER,                 -- 버전(MAJOR)
+    VER_MINOR INTEGER,                 -- 버전(MINOR)
+    VOD_ACQ_TP_CD VARCHAR(50),         -- 수급타입코드
+    WRTR_DISP VARCHAR(255),            -- 작가
+    ASSET_5 VARCHAR(255),               -- 기타식별자
+	CONSTRAINT TB_VOD_META_PK PRIMARY KEY (ASSET_ID)
+);
+
+
+COMMENT ON TABLE TB_VOD_META IS 'VOD 콘텐츠 상세 마스터';
+COMMENT ON COLUMN TB_VOD_META.ASSET_ID IS '에셋ID';
+COMMENT ON COLUMN TB_VOD_META.ACTR_DISP IS '출연배우';
+COMMENT ON COLUMN TB_VOD_META.ASSET_NM IS '콘텐츠명';
+COMMENT ON COLUMN TB_VOD_META.ASSET_PROD IS '상품타입';
+COMMENT ON COLUMN TB_VOD_META.AUD IS '오디오';
+COMMENT ON COLUMN TB_VOD_META.AUDIENCE_CNT IS '관객수';
+COMMENT ON COLUMN TB_VOD_META.BROAD_YMD IS '방영일자';
+COMMENT ON COLUMN TB_VOD_META.CATEGORY IS '카테고리경로';
+COMMENT ON COLUMN TB_VOD_META.CHAPTER IS '챕터정보';
+COMMENT ON COLUMN TB_VOD_META.CREATED IS '생성일시';
+COMMENT ON COLUMN TB_VOD_META.CREATED_BY IS '생성자';
+COMMENT ON COLUMN TB_VOD_META.CRT_YMD IS '등록일자';
+COMMENT ON COLUMN TB_VOD_META.CT_CL IS '콘텐츠대분류';
+COMMENT ON COLUMN TB_VOD_META.CTS_ID IS 'CTS_ID';
+COMMENT ON COLUMN TB_VOD_META.DESCRIPTION IS '상세설명';
+COMMENT ON COLUMN TB_VOD_META.DIRECTOR IS '감독';
+COMMENT ON COLUMN TB_VOD_META.DISP_AS_LST_CHNC IS 'LASTCHANCE여부';
+COMMENT ON COLUMN TB_VOD_META.DISP_AS_NEW IS 'NEW뱃지여부';
+COMMENT ON COLUMN TB_VOD_META.DISP_RTM IS '상영시간';
+COMMENT ON COLUMN TB_VOD_META.DSBTR_NM IS '배급사';
+COMMENT ON COLUMN TB_VOD_META.EPSD_ID IS '에피소드ID';
+COMMENT ON COLUMN TB_VOD_META.EPSD_NM IS '에피소드명';
+COMMENT ON COLUMN TB_VOD_META.EPSD_NO IS '회차번호';
+COMMENT ON COLUMN TB_VOD_META.FULL_ASSET_ID IS '전체에셋ID';
+COMMENT ON COLUMN TB_VOD_META.GENRE IS '장르(대)';
+COMMENT ON COLUMN TB_VOD_META.GENRE_OF_CT_CL IS '장르(소)';
+COMMENT ON COLUMN TB_VOD_META.GENRE_OF_CT_CL_CD IS '장르코드';
+COMMENT ON COLUMN TB_VOD_META.GRADE_SCORE IS '시청등급';
+COMMENT ON COLUMN TB_VOD_META.HASH_TAG IS '해시태그';
+COMMENT ON COLUMN TB_VOD_META.IMG_BASE_DIR IS '이미지경로';
+COMMENT ON COLUMN TB_VOD_META.IS_HOT_FL IS '인기작여부';
+COMMENT ON COLUMN TB_VOD_META.IS_NEW_FL IS '신작여부';
+COMMENT ON COLUMN TB_VOD_META.LONG_TAIL_FL IS '롱테일여부';
+COMMENT ON COLUMN TB_VOD_META.LT_INCLSN_FL IS 'LT포함여부';
+COMMENT ON COLUMN TB_VOD_META.MOBILE_WATCH_URL IS '모바일URL';
+COMMENT ON COLUMN TB_VOD_META.ONE_LINE_REVIEW IS '한줄평';
+COMMENT ON COLUMN TB_VOD_META.ORGNL_AIR_DT IS '방영일시';
+COMMENT ON COLUMN TB_VOD_META.ORGNL_CNTRY IS '제작국가';
+COMMENT ON COLUMN TB_VOD_META.POSTER_DEL_FL IS '포스터삭제여부';
+COMMENT ON COLUMN TB_VOD_META.POSTER_PT IS '포스터파일명';
+COMMENT ON COLUMN TB_VOD_META.PRDCRS IS '제작자';
+COMMENT ON COLUMN TB_VOD_META.PREVIEW_FILE_NM IS '예고편파일명';
+COMMENT ON COLUMN TB_VOD_META.PREVIEW_RATE IS '예고편비율';
+COMMENT ON COLUMN TB_VOD_META.PREVIEW_RTM IS '예고편시간';
+COMMENT ON COLUMN TB_VOD_META.PREVW_PRD IS '미리보기시간';
+COMMENT ON COLUMN TB_VOD_META.PRODUCT_TP IS '상품유형코드';
+COMMENT ON COLUMN TB_VOD_META.PROVIDER IS '제공사';
+COMMENT ON COLUMN TB_VOD_META.PRPGT_PRI IS '우선순위';
+COMMENT ON COLUMN TB_VOD_META.PRVD_ID IS '제공사ID';
+COMMENT ON COLUMN TB_VOD_META.PUBLCTN_RT IS '배급비율';
+COMMENT ON COLUMN TB_VOD_META.RATE IS '평점';
+COMMENT ON COLUMN TB_VOD_META.RLSE_YEAR IS '출시년도';
+COMMENT ON COLUMN TB_VOD_META.RVSN_ID IS '리비전ID';
+COMMENT ON COLUMN TB_VOD_META.SCREEN_TP IS '화질타입';
+COMMENT ON COLUMN TB_VOD_META.SEASN_FIN_FL IS '시즌완결여부';
+COMMENT ON COLUMN TB_VOD_META.SEASN_PREM_FL IS '시즌프리미엄';
+COMMENT ON COLUMN TB_VOD_META.SERIES_SQ IS '시리즈순서';
+COMMENT ON COLUMN TB_VOD_META.SHOW_TP IS '방영타입';
+COMMENT ON COLUMN TB_VOD_META.SMRY IS '줄거리';
+COMMENT ON COLUMN TB_VOD_META.SMRY_LNG IS '줄거리(장)';
+COMMENT ON COLUMN TB_VOD_META.SMRY_SHRT IS '줄거리(단)';
+COMMENT ON COLUMN TB_VOD_META.SP_ID IS 'SP_ID';
+COMMENT ON COLUMN TB_VOD_META.STAR_SCORE IS '별점';
+COMMENT ON COLUMN TB_VOD_META.STUDIO IS '스튜디오';
+COMMENT ON COLUMN TB_VOD_META.STUDIO_CD IS '스튜디오코드';
+COMMENT ON COLUMN TB_VOD_META.STUDIO_NM IS '제작사명';
+COMMENT ON COLUMN TB_VOD_META.SUB_TITLE IS '부제';
+COMMENT ON COLUMN TB_VOD_META.SUPER_ASSET_ID IS '상위에셋ID';
+COMMENT ON COLUMN TB_VOD_META.SUPER_ASSET_NM IS '상위에셋명';
+COMMENT ON COLUMN TB_VOD_META.SUPER_ASSET_SQ IS '상위에셋순서';
+COMMENT ON COLUMN TB_VOD_META.SVC_APPLIED IS '서비스적용';
+COMMENT ON COLUMN TB_VOD_META.SVC_APY_FL IS '서비스플래그';
+COMMENT ON COLUMN TB_VOD_META.THMBNL_DEL_FL IS '썸네일삭제여부';
+COMMENT ON COLUMN TB_VOD_META.THMBNL_FL IS '썸네일여부';
+COMMENT ON COLUMN TB_VOD_META.THMBNL_PT IS '썸네일경로';
+COMMENT ON COLUMN TB_VOD_META.THMBNL_REP_FILE_NM IS '대표썸네일명';
+COMMENT ON COLUMN TB_VOD_META.TTL IS '제목';
+COMMENT ON COLUMN TB_VOD_META.TTL_BRIEF IS '제목(약어)';
+COMMENT ON COLUMN TB_VOD_META.TTL_LNG IS '제목(장)';
+COMMENT ON COLUMN TB_VOD_META.TTL_MDM IS '제목(중)';
+COMMENT ON COLUMN TB_VOD_META.TTL_SORT_NM IS '정렬용제목';
+COMMENT ON COLUMN TB_VOD_META.UPDATED IS '수정일시';
+COMMENT ON COLUMN TB_VOD_META.USE_FL IS '사용여부';
+COMMENT ON COLUMN TB_VOD_META.VER_MAJOR IS '버전(MAJOR)';
+COMMENT ON COLUMN TB_VOD_META.VER_MINOR IS '버전(MINOR)';
+COMMENT ON COLUMN TB_VOD_META.VOD_ACQ_TP_CD IS '수급타입코드';
+COMMENT ON COLUMN TB_VOD_META.WRTR_DISP IS '작가';
+COMMENT ON COLUMN TB_VOD_META.ASSET_5 IS '기타식별자';
+
+
+CREATE TABLE IF NOT EXISTS TB_PROD_INFO (
+    -- 1. 기본 식별 정보
+    SRL_NO              BIGSERIAL PRIMARY KEY,
+    PLATFORM            TEXT NOT NULL,          -- HELLOVISION, COUPANG, NAVER
+    IS_RENTAL           CHAR(1) DEFAULT 'N',    -- 렌탈 여부 (Y/N)
+    PROD_CD             TEXT NOT NULL,          -- 각 사이트의 고유 상품번호
+    PROD_NM             TEXT NOT NULL,          -- 상품명
+    BRAND               TEXT,                   -- 브랜드/제조사
+    CATEGORY            TEXT,                   -- 상품 카테고리 (대>중>소)
+    -- 2. 가격 및 판매 정보
+    SALE_PRICE          BIGINT,                 -- 일반 판매가
+    MONTHLY_RENTAL_FEE  BIGINT,                 -- 월 렌탈료
+    RENTAL_PERIOD       INTEGER,                -- 렌탈 약정 기간
+    DELIVERY_FEE        INTEGER DEFAULT 0,      -- 배송비
+    DELIVERY_TYPE       TEXT,                   -- 배송 방식
+    -- 3. 소셜 및 신뢰도 정보
+    REVIEW_CNT          INTEGER DEFAULT 0,      -- 리뷰 수
+    RATING              NUMERIC(4, 2),          -- 평점 (10점 만점까지 대응 가능하도록 4,2 권장)
+    IS_AD               CHAR(1) DEFAULT 'N',    -- 광고 상품 여부 (Y/N)
+    -- 4. 미디어 및 링크 정보
+    THUMBNAIL_URL       TEXT,
+    DETAIL_URL          TEXT,
+    -- 5. 시스템 메타 정보
+    SCRAPED_DT          TIMESTAMPTZ,
+    CREATED_DT          TIMESTAMPTZ DEFAULT NOW(),
+    UPDATED_DT          TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT UK_PLATFORM_PRODUCT_CODE UNIQUE (PLATFORM, PROD_CD)
+);
+
+CREATE INDEX IDX_PROD_PLATFORM_RENTAL ON TB_PROD_INFO (PLATFORM, IS_RENTAL);
+CREATE INDEX IDX_PROD_BRAND ON TB_PROD_INFO (BRAND);
+CREATE INDEX IDX_PROD_SALE_PRICE ON TB_PROD_INFO (SALE_PRICE) WHERE SALE_PRICE IS NOT NULL;
+
+COMMENT ON COLUMN TB_PROD_INFO.SRL_NO IS '일련번호';
+COMMENT ON COLUMN TB_PROD_INFO.PLATFORM IS '수집 플랫폼 (HELLOVISION, COUPANG, NAVER)';
+COMMENT ON COLUMN TB_PROD_INFO.IS_RENTAL IS '렌탈 상품 여부 (Y: 렌탈, N: 일반판매)';
+COMMENT ON COLUMN TB_PROD_INFO.PROD_CD IS '플랫폼별 상품 고유 번호';
+COMMENT ON COLUMN TB_PROD_INFO.PROD_NM IS '상품명';
+COMMENT ON COLUMN TB_PROD_INFO.BRAND IS '브랜드/제조사명';
+COMMENT ON COLUMN TB_PROD_INFO.CATEGORY IS '카테고리 경로';
+COMMENT ON COLUMN TB_PROD_INFO.SALE_PRICE IS '일반 판매 가격 (원)';
+COMMENT ON COLUMN TB_PROD_INFO.MONTHLY_RENTAL_FEE IS '월 렌탈 비용 (원)';
+COMMENT ON COLUMN TB_PROD_INFO.RENTAL_PERIOD IS '최대 렌탈 약정 기간 (개월)';
+COMMENT ON COLUMN TB_PROD_INFO.DELIVERY_FEE IS '배송비 (0: 무료)';
+COMMENT ON COLUMN TB_PROD_INFO.DELIVERY_TYPE IS '배송 타입 (로켓배송, 새벽배송 등)';
+COMMENT ON COLUMN TB_PROD_INFO.REVIEW_CNT IS '상품 리뷰 총 개수';
+COMMENT ON COLUMN TB_PROD_INFO.RATING IS '상품 평점 (5점 만점)';
+COMMENT ON COLUMN TB_PROD_INFO.IS_AD IS '광고 노출 상품 여부';
+COMMENT ON COLUMN TB_PROD_INFO.THUMBNAIL_URL IS '상품 이미지 경로';
+COMMENT ON COLUMN TB_PROD_INFO.DETAIL_URL IS '상품 상세페이지 URL';
+COMMENT ON COLUMN TB_PROD_INFO.SCRAPED_DT IS '최종 수집 일시';
+COMMENT ON COLUMN TB_PROD_INFO.CREATED_DT IS '데이터 생성 일시';
+COMMENT ON COLUMN TB_PROD_INFO.UPDATED_DT IS '데이터 수정 일시';

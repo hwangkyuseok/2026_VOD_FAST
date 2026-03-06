@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+:root {
+  --tv-bg: #0a0a1a;
+  --tv-surface: #1a1a2e;
+}
+
+body {
+  background-color: var(--tv-bg);
+  color: #e2e8f0;
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  overflow: hidden; /* 셋탑박스 에뮬레이터: 스크롤 없음 */
+}
+
+/* 채널 전환 스캔라인 효과 */
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* TV 글로우 효과 */
+.tv-glow {
+  box-shadow: 0 0 30px rgba(108, 92, 231, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* 채널 번호 오버레이 */
+.channel-badge {
+  @apply absolute top-4 right-4 bg-black/70 text-white px-3 py-1.5 rounded text-sm font-bold backdrop-blur-sm;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 광고 오버레이 */
+.ad-overlay {
+  @apply absolute bottom-20 left-4 right-4 animate-ad-slide-up;
+}
+
+/* 쇼핑 오버레이 */
+.shopping-overlay {
+  @apply absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2;
+}
+
+/* 스크롤바 숨김 (TV UI) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── 0번 채널 (CommerceChannel) 포커스 링 유틸리티 ─────────────────────── */
+.tv-focused {
+  outline: 2px solid rgba(0, 230, 118, 0.7);
+  outline-offset: 2px;
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.35);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

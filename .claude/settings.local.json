@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/20.WORKSPACE/2026_TV_COMMERCE/**)",
+      "Read(//d/20.WORKSPACE/2026_ADWARE/**)",
+      "Bash(python -m py_compile:*)"
+    ]
+  }
+}

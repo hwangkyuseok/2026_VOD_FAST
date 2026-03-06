@@ -1,0 +1,156 @@
+version: "3.9"
+
+# ============================================================
+# 2026_TV — 차세대 미디어 플랫폼
+# 원격 Docker 서버 배포용 구성
+# PostgreSQL은 이미 운영 중 → 컨테이너 미포함
+# ============================================================
+
+services:
+
+  # ── Redis (배치 큐 + 캐시) ──────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: tv_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
+
+  # ── Backend API (FastAPI, Port 8000) ─────────────────────────
+  backend-api:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    container_name: tv_backend_api
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_API_PORT:-8000}:8000"
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - APP_ENV=${APP_ENV:-production}
+    volumes:
+      - vod_data:/app/data/vod:ro
+      - ad_assets:/app/data/ad_assets:ro
+      - backend_logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── NLP API (FastAPI, Port 8001) ─────────────────────────────
+  nlp-api:
+    build:
+      context: ./nlp-api
+      dockerfile: Dockerfile
+    container_name: tv_nlp_api
+    restart: unless-stopped
+    ports:
+      - "${NLP_API_PORT:-8001}:8001"
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - KEYBERT_MODEL=${KEYBERT_MODEL:-snunlp/KR-ELECTRA-discriminator}
+      - KIDS_GENRE_CODES=${KIDS_GENRE_CODES:-KIDS,ANIME,ANIMATION}
+      - KIDS_BOOST_SCORE=${KIDS_BOOST_SCORE:-0.3}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # TF-IDF 모델 저장 경로 (재시작 시 자동 로드)
+      - TFIDF_MODEL_PATH=${TFIDF_MODEL_PATH:-/app/models/tfidf.pkl}
+    volumes:
+      - nlp_models:/app/models
+      - nlp_logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Ad Batch Worker (Python APScheduler) ─────────────────────
+  ad-batch:
+    build:
+      context: ./ad-batch
+      dockerfile: Dockerfile
+    container_name: tv_ad_batch
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_SYNC_URL}
+      - DATABASE_ASYNC_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - AD_BATCH_CRON=${AD_BATCH_CRON:-0 2 * * 1}
+      - WEEKLY_FREE_VOD_COUNT=${WEEKLY_FREE_VOD_COUNT:-10}
+      - YOLO_MODEL_PATH=${YOLO_MODEL_PATH:-/app/models/yolov8n.pt}
+      - AD_ASSET_DIR=${AD_ASSET_DIR:-/app/data/ad_assets}
+      - VOD_SOURCE_DIR=${VOD_SOURCE_DIR:-/app/data/vod}
+      - IMAGE_GEN_API_KEY=${IMAGE_GEN_API_KEY}
+      - IMAGE_GEN_API_URL=${IMAGE_GEN_API_URL}
+      - VIDEO_GEN_API_KEY=${VIDEO_GEN_API_KEY}
+      - VIDEO_GEN_API_URL=${VIDEO_GEN_API_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # CLIP 모델 (false=비활성화, GPU 없는 환경에서 false 권장)
+      - CLIP_ENABLED=${CLIP_ENABLED:-true}
+      - CLIP_MODEL=${CLIP_MODEL:-openai/clip-vit-base-patch32}
+    volumes:
+      - vod_data:/app/data/vod:ro
+      - ad_assets:/app/data/ad_assets
+      - batch_models:/app/models
+      - batch_logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── Frontend (Next.js, Port 3000) ─────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://YOUR_SERVER_IP:8000}
+        NEXT_PUBLIC_NLP_API_URL: ${NEXT_PUBLIC_NLP_API_URL:-http://YOUR_SERVER_IP:8001}
+    container_name: tv_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_NLP_API_URL=${NEXT_PUBLIC_NLP_API_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_DIR=/app/logs
+    volumes:
+      - frontend_logs:/app/logs
+    depends_on:
+      backend-api:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  vod_data:
+  ad_assets:
+  nlp_models:
+  batch_models:
+  backend_logs:
+  nlp_logs:
+  batch_logs:
+  frontend_logs:
+
+networks:
+  default:
+    name: tv_network
